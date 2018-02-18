@@ -1,0 +1,90 @@
+                sip    main
+# Document here
+                org    0x20
+Num1Str:        db     "127",0
+Num1:           bss    1
+Num2Str:        db     "128",0
+Num2:           bss    1
+Sum:            bss    1
+
+
+                org    0x00
+main:
+                load   R0,0xAB
+                load   R1,1
+                load   R2,Num1Str
+                push   R2
+                call   ASCII_To_Binary
+                store  [Num1],RA
+                
+                load   R2,Num2Str
+                push   R2
+                call   ASCII_To_Binary
+                store  [Num2],RA
+ 
+# complete
+                load   R4,[Num1]
+                load   R5,[Num2]
+                add    R5,R4,R5
+                store  [Sum],R5
+                halt
+                
+                org    0x30
+encoding:       db     "0"    
+ASCII_To_Binary:
+                push   RBP
+                move   RBP,RSP
+                push   R0
+                
+                load   R0,0
+                load   RA,0
+                load   R6,[encoding]
+                load   R7,0xFF
+                xor    RB,R7,R6    
+                add    RB,R1,RB
+
+                rload  R8,0x02[RBP]   
+                iload  R9,[R8]
+                
+addWhile:            
+                jmpeq  R9=R0,asciiEnd
+                push   RA
+                call   Mult10
+                add    R9,R9,RB
+                add    RA,RA,R9
+
+                add    R8,R8,R1
+                iload  R9,[R8]
+                jmp    addWhile
+                
+                
+asciiEnd:
+                pop    R0
+                move   RSP,RBP
+                pop    RBP
+                ret    1
+
+
+Mult10:            
+                push   RBP
+                move   RBP,RSP
+                push   R0
+                push   R7
+                push   R8
+                push   R9
+
+                
+                rload    R8,0x02[RBP]
+                move     R9,R8
+                SL         R9,2
+                add     R9,R8,R9
+                SL        R9,1
+                move    RA,R9
+                
+                pop    R9
+                pop    R8
+                pop    R7
+                pop    R0
+                move   RSP,RBP
+                pop    RBP                
+                ret        1
